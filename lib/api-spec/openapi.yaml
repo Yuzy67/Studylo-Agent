@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Studylo API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: openai
+    description: OpenAI AI chat operations
+  - name: studylo
+    description: Studylo-specific AI operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,176 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a text message and receive a streaming text response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+
+  /studylo/generate:
+    post:
+      operationId: generateDevOutput
+      tags: [studylo]
+      summary: Generate dev co-pilot outputs (PRD, TRD, Sitemap, etc.)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DevGenerateInput"
+      responses:
+        "200":
+          description: SSE stream of generated content
+          content:
+            text/event-stream: {}
+
+  /studylo/flashcards:
+    post:
+      operationId: generateFlashcards
+      tags: [studylo]
+      summary: Generate flashcards from pasted notes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlashcardsInput"
+      responses:
+        "200":
+          description: Generated flashcard deck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlashcardDeck"
+
+  /studylo/modes:
+    get:
+      operationId: getStudyloModes
+      tags: [studylo]
+      summary: Get available study/dev modes
+      responses:
+        "200":
+          description: List of available modes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyloMode"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +208,179 @@ components:
       required:
         - status
 
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        mode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - mode
+        - createdAt
+        - updatedAt
+
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        mode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - mode
+        - createdAt
+        - updatedAt
+        - messages
+
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+        mode:
+          type: string
+      required:
+        - title
+        - mode
+
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+        mode:
+          type: string
+      required:
+        - content
+        - mode
+
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    DevGenerateInput:
+      type: object
+      properties:
+        idea:
+          type: string
+        outputType:
+          type: string
+          description: "prd | trd | prompt | sitemap | starter-code | all"
+        language:
+          type: string
+          description: "nextjs | react | vue | vanilla"
+      required:
+        - idea
+        - outputType
+
+    FlashcardsInput:
+      type: object
+      properties:
+        notes:
+          type: string
+        subject:
+          type: string
+      required:
+        - notes
+
+    Flashcard:
+      type: object
+      properties:
+        front:
+          type: string
+        back:
+          type: string
+        topic:
+          type: string
+      required:
+        - front
+        - back
+        - topic
+
+    FlashcardDeck:
+      type: object
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        flashcards:
+          type: array
+          items:
+            $ref: "#/components/schemas/Flashcard"
+        keyTerms:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - summary
+        - flashcards
+        - keyTerms
+
+    StudyloMode:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+      required:
+        - id
+        - label
+        - description
+        - icon

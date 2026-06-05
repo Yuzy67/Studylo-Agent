@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Studylo"
+version = "1.0.0"
+id = "artifacts/studylo"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18856
+
+[services.development]
+run = "pnpm --filter @workspace/studylo run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/studylo", "run", "build" ]
+publicDir = "artifacts/studylo/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18856"
+BASE_PATH = "/"
