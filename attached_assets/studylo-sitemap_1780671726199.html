@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Studylo — Site Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:         #07070E;
+    --surface:    #0F0F1A;
+    --surface-2:  #16162A;
+    --purple:     #7C3AED;
+    --purple-lt:  #A78BFA;
+    --purple-glow:rgba(124,58,237,0.18);
+    --purple-border:rgba(124,58,237,0.28);
+    --grey:       #6B7280;
+    --grey-lt:    #9CA3AF;
+    --white:      #F3F4F6;
+    --line:       rgba(124,58,237,0.22);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Ambient orbs ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 600px; height: 600px; top: -200px; left: -200px; background: rgba(109,28,217,0.18); }
+  .orb-2 { width: 400px; height: 400px; bottom: -100px; right: -100px; background: rgba(124,58,237,0.12); }
+  .orb-3 { width: 300px; height: 300px; top: 40%; left: 50%; background: rgba(167,139,250,0.07); }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 52px 24px 32px;
+  }
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,58,237,0.12);
+    border: 1px solid var(--purple-border);
+    border-radius: 100px;
+    padding: 6px 16px 6px 10px;
+    margin-bottom: 22px;
+    backdrop-filter: blur(12px);
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--purple-lt);
+    box-shadow: 0 0 8px var(--purple-lt);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.6;transform:scale(1.3)}
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--purple-lt);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 54px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--purple-lt) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  header p {
+    font-size: 15px;
+    color: var(--grey-lt);
+    max-width: 560px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--grey-lt);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ── Main canvas ── */
+  .canvas {
+    position: relative;
+    z-index: 10;
+    padding: 0 16px 80px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  /* ── SVG connector lines ── */
+  .connectors {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Root node ── */
+  .root-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 5;
+  }
+  .root-node {
+    background: linear-gradient(135deg, #3B0764 0%, var(--purple) 100%);
+    border: 1.5px solid rgba(167,139,250,0.5);
+    border-radius: 20px;
+    padding: 18px 36px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(124,58,237,0.4), 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+    cursor: default;
+    transition: transform .25s, box-shadow .25s;
+    position: relative;
+  }
+  .root-node:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 80px rgba(124,58,237,0.55), 0 12px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .root-node .icon { font-size: 26px; margin-bottom: 4px; }
+  .root-node .title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.01em;
+  }
+  .root-node .route {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 3px;
+  }
+
+  /* ── Vertical stem from root ── */
+  .stem {
+    width: 2px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--purple), var(--purple-border));
+    margin: 0 auto;
+    position: relative;
+    z-index: 4;
+  }
+
+  /* ── Horizontal rail ── */
+  .rail {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--line) 20%, var(--line) 80%, transparent);
+    position: relative;
+    z-index: 4;
+    margin: 0 auto;
+    width: 90%;
+  }
+
+  /* ── Branch columns ── */
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 5;
+    margin-top: 0;
+  }
+
+  /* ── Branch vertical drop ── */
+  .branch-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .branch-stem {
+    width: 2px;
+    height: 36px;
+    background: linear-gradient(to bottom, var(--line), transparent 80%);
+  }
+
+  /* ── Section node (L1) ── */
+  .section-node {
+    width: 100%;
+    border-radius: 16px;
+    padding: 14px 14px 12px;
+    text-align: center;
+    border: 1px solid;
+    backdrop-filter: blur(14px);
+    transition: transform .2s, box-shadow .2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-node::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .section-node:hover { transform: translateY(-4px); }
+  .section-node .s-icon { font-size: 22px; margin-bottom: 6px; }
+  .section-node .s-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .section-node .s-route {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    opacity: .55;
+    margin-bottom: 6px;
+  }
+  .section-node .s-desc {
+    font-size: 10.5px;
+    color: var(--grey-lt);
+    line-height: 1.4;
+  }
+
+  /* ── Color themes per section ── */
+  .t-home   { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.35); box-shadow: 0 4px 24px rgba(124,58,237,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+  .t-home:hover { box-shadow: 0 8px 36px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.08); }
+  .t-home .s-title { color: #C4B5FD; }
+
+  .t-chat   { background: rgba(79,70,229,0.1); border-color: rgba(99,102,241,0.35); box-shadow: 0 4px 24px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.05); }
+  .t-chat:hover { box-shadow: 0 8px 36px rgba(99,102,241,0.25); }
+  .t-chat .s-title { color: #A5B4FC; }
+
+  .t-dev    { background: rgba(109,28,217,0.1); border-color: rgba(139,92,246,0.35); box-shadow: 0 4px 24px rgba(139,92,246,0.12); }
+  .t-dev:hover { box-shadow: 0 8px 36px rgba(139,92,246,0.28); }
+  .t-dev .s-title { color: #DDD6FE; }
+
+  .t-study  { background: rgba(91,33,182,0.1); border-color: rgba(124,58,237,0.3); box-shadow: 0 4px 24px rgba(91,33,182,0.12); }
+  .t-study:hover { box-shadow: 0 8px 36px rgba(91,33,182,0.28); }
+  .t-study .s-title { color: #E9D5FF; }
+
+  .t-notes  { background: rgba(55,48,163,0.12); border-color: rgba(99,102,241,0.28); box-shadow: 0 4px 24px rgba(55,48,163,0.1); }
+  .t-notes:hover { box-shadow: 0 8px 36px rgba(55,48,163,0.25); }
+  .t-notes .s-title { color: #BAE6FD; }
+
+  /* ── Sub-page stem ── */
+  .sub-stem {
+    width: 2px;
+    height: 24px;
+    background: var(--line);
+  }
+
+  /* ── Sub-pages (L2) ── */
+  .sub-pages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  .sub-node {
+    width: 100%;
+    border-radius: 10px;
+    padding: 9px 12px;
+    border: 1px solid rgba(124,58,237,0.15);
+    background: rgba(255,255,255,0.025);
+    backdrop-filter: blur(8px);
+    transition: all .18s;
+    cursor: pointer;
+    position: relative;
+  }
+  .sub-node:hover {
+    border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.08);
+    transform: translateX(3px);
+  }
+  .sub-node .sub-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--grey-lt);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .sub-node .sub-route {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--grey);
+  }
+  .sub-node .sub-badge {
+    position: absolute;
+    top: 7px; right: 8px;
+    font-size: 9px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 2px 6px;
+    border-radius: 100px;
+    font-weight: 600;
+    letter-spacing: .04em;
+  }
+  .badge-api    { background: rgba(124,58,237,0.2); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); }
+  .badge-page   { background: rgba(55,48,163,0.2); color: #A5B4FC; border: 1px solid rgba(99,102,241,0.25); }
+  .badge-modal  { background: rgba(91,33,182,0.15); color: #C4B5FD; border: 1px solid rgba(139,92,246,0.2); }
+  .badge-static { background: rgba(75,85,99,0.2); color: #9CA3AF; border: 1px solid rgba(107,114,128,0.25); }
+
+  /* ── API section row ── */
+  .api-section {
+    margin-top: 48px;
+    position: relative;
+    z-index: 5;
+  }
+  .section-label {
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::before, .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .api-node {
+    background: rgba(10,10,20,0.6);
+    border: 1px solid rgba(124,58,237,0.18);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    backdrop-filter: blur(10px);
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .api-node:hover {
+    border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.07);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.15);
+  }
+  .api-node .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 7px;
+    display: inline-block;
+  }
+  .m-post { background: rgba(124,58,237,0.25); color: #A78BFA; }
+  .m-get  { background: rgba(34,197,94,0.15); color: #86EFAC; }
+  .api-node .api-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+  .api-node .api-route {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--grey);
+  }
+  .api-node .api-desc {
+    font-size: 10.5px;
+    color: var(--grey-lt);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+
+  /* ── Footer info bar ── */
+  .info-bar {
+    margin-top: 52px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    position: relative;
+    z-index: 5;
+  }
+  .info-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(124,58,237,0.15);
+    border-radius: 14px;
+    padding: 16px 18px;
+    backdrop-filter: blur(10px);
+  }
+  .info-card .ic-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .info-card .ic-items {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ic-item {
+    font-size: 12px;
+    color: var(--grey-lt);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ic-item .dot2 {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--purple-lt);
+    flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 32px 16px 40px;
+    font-size: 12px;
+    color: var(--grey);
+    position: relative;
+    z-index: 5;
+    font-family: 'DM Sans', sans-serif;
+  }
+  footer span { color: var(--purple-lt); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .branches { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .branches { grid-template-columns: repeat(2, 1fr); }
+    .rail { width: 95%; }
+  }
+  @media (max-width: 400px) {
+    .branches { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ambient orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo-badge">
+    <div class="logo-dot"></div>
+    <span class="logo-text">Studylo — Visual Sitemap v1.0</span>
+  </div>
+  <h1>Architecture Overview</h1>
+  <p>Full route map, module structure, and API endpoints for the Studylo platform — ready to hand off to any vibe coding tool.</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#7C3AED"></div> Page / Route</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#A78BFA"></div> API Endpoint</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6B7280"></div> Modal / Overlay</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#374151"></div> Static Page</div>
+  </div>
+</header>
+
+<!-- Canvas -->
+<div class="canvas">
+
+  <!-- Root node -->
+  <div class="root-wrap">
+    <div class="root-node">
+      <div class="icon">🎓</div>
+      <div class="title">studylo.app</div>
+      <div class="route">/ — Entry Point</div>
+    </div>
+  </div>
+
+  <!-- Stem down from root -->
+  <div class="stem"></div>
+
+  <!-- Horizontal rail -->
+  <div class="rail"></div>
+
+  <!-- 5 main branch columns -->
+  <div class="branches">
+
+    <!-- ── 1. HOME ── -->
+    <div class="branch-col">
+      <div class="branch-stem"></div>
+      <div class="section-node t-home">
+        <div class="s-icon">🏠</div>
+        <div class="s-title">Home / Landing</div>
+        <div class="s-route">/</div>
+        <div class="s-desc">Hero, search bar, mode chips, feature cards</div>
+      </div>
+      <div class="sub-stem"></div>
+      <div class="sub-pages">
+        <div class="sub-node">
+          <div class="sub-title">🔍 Hero Search</div>
+          <div class="sub-route">/ #search</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">⚡ Mode Picker</div>
+          <div class="sub-route">/ #modes</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">📦 Features</div>
+          <div class="sub-route">/ #features</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">💬 Testimonials</div>
+          <div class="sub-route">/ #social</div>
+          <span class="sub-badge badge-static">STATIC</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🔗 Footer Nav</div>
+          <div class="sub-route">/ #footer</div>
+          <span class="sub-badge badge-static">STATIC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. CHAT ── -->
+    <div class="branch-col">
+      <div class="branch-stem"></div>
+      <div class="section-node t-chat">
+        <div class="s-icon">💬</div>
+        <div class="s-title">Chat Interface</div>
+        <div class="s-route">/chat/[id]</div>
+        <div class="s-desc">Streaming AI chat, history, multi-mode</div>
+      </div>
+      <div class="sub-stem"></div>
+      <div class="sub-pages">
+        <div class="sub-node">
+          <div class="sub-title">📋 Chat History</div>
+          <div class="sub-route">/chat</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🆕 New Chat</div>
+          <div class="sub-route">/chat/new</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🗂 Session View</div>
+          <div class="sub-route">/chat/[id]</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🔗 Share Chat</div>
+          <div class="sub-route">/chat/[id]/share</div>
+          <span class="sub-badge badge-modal">MODAL</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">⚙️ Chat Settings</div>
+          <div class="sub-route">/chat/[id]/settings</div>
+          <span class="sub-badge badge-modal">MODAL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. DEV TOOLS ── -->
+    <div class="branch-col">
+      <div class="branch-stem"></div>
+      <div class="section-node t-dev">
+        <div class="s-icon">🛠</div>
+        <div class="s-title">Dev Co-Pilot</div>
+        <div class="s-route">/dev-tools</div>
+        <div class="s-desc">PRD, TRD, prompts, code, deploy guides</div>
+      </div>
+      <div class="sub-stem"></div>
+      <div class="sub-pages">
+        <div class="sub-node">
+          <div class="sub-title">📄 PRD Generator</div>
+          <div class="sub-route">/dev-tools #prd</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🔧 TRD Generator</div>
+          <div class="sub-route">/dev-tools #trd</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🗺 Sitemap Gen</div>
+          <div class="sub-route">/dev-tools #sitemap</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🤖 Prompt Forge</div>
+          <div class="sub-route">/dev-tools #prompt</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">💻 Starter Code</div>
+          <div class="sub-route">/dev-tools #code</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🚀 Vercel Guide</div>
+          <div class="sub-route">/dev-tools #deploy</div>
+          <span class="sub-badge badge-static">STATIC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. STUDY ── -->
+    <div class="branch-col">
+      <div class="branch-stem"></div>
+      <div class="section-node t-study">
+        <div class="s-icon">📚</div>
+        <div class="s-title">Study Assistant</div>
+        <div class="s-route">/study</div>
+        <div class="s-desc">Problem solving, step-by-step, LaTeX, code</div>
+      </div>
+      <div class="sub-stem"></div>
+      <div class="sub-pages">
+        <div class="sub-node">
+          <div class="sub-title">🔢 Math Solver</div>
+          <div class="sub-route">/study?mode=math</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">⚗️ Sciences</div>
+          <div class="sub-route">/study?mode=science</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">💻 Code Debug</div>
+          <div class="sub-route">/study?mode=code</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">✍️ Essay Help</div>
+          <div class="sub-route">/study?mode=writing</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🌍 Humanities</div>
+          <div class="sub-route">/study?mode=humanities</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 5. NOTES ── -->
+    <div class="branch-col">
+      <div class="branch-stem"></div>
+      <div class="section-node t-notes">
+        <div class="s-icon">🗒</div>
+        <div class="s-title">Smart Notes</div>
+        <div class="s-route">/notes</div>
+        <div class="s-desc">Summaries, flashcards, spaced repetition</div>
+      </div>
+      <div class="sub-stem"></div>
+      <div class="sub-pages">
+        <div class="sub-node">
+          <div class="sub-title">📥 Paste / Upload</div>
+          <div class="sub-route">/notes/new</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">🧠 Flashcards</div>
+          <div class="sub-route">/notes/[id]/cards</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">📝 Summary View</div>
+          <div class="sub-route">/notes/[id]</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">📤 Export PDF</div>
+          <div class="sub-route">/notes/[id]/export</div>
+          <span class="sub-badge badge-modal">MODAL</span>
+        </div>
+        <div class="sub-node">
+          <div class="sub-title">📚 My Library</div>
+          <div class="sub-route">/notes/library</div>
+          <span class="sub-badge badge-page">PAGE</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /branches -->
+
+  <!-- ── API Endpoints ── -->
+  <div class="api-section">
+    <div class="section-label">API Routes — /app/api/</div>
+    <div class="api-grid">
+      <div class="api-node">
+        <div class="method m-post">POST</div>
+        <div class="api-title">Chat Stream</div>
+        <div class="api-route">/api/chat</div>
+        <div class="api-desc">OpenAI streaming, mode-aware system prompts</div>
+      </div>
+      <div class="api-node">
+        <div class="method m-post">POST</div>
+        <div class="api-title">Generate Docs</div>
+        <div class="api-route">/api/generate</div>
+        <div class="api-desc">PRD / TRD / Sitemap / Prompt generation</div>
+      </div>
+      <div class="api-node">
+        <div class="method m-post">POST</div>
+        <div class="api-title">Starter Code</div>
+        <div class="api-route">/api/code</div>
+        <div class="api-desc">Boilerplate gen, stack-aware, Vercel-ready</div>
+      </div>
+      <div class="api-node">
+        <div class="method m-post">POST</div>
+        <div class="api-title">Flashcards</div>
+        <div class="api-route">/api/flashcards</div>
+        <div class="api-desc">Auto-generate Q&A cards from pasted notes</div>
+      </div>
+      <div class="api-node">
+        <div class="method m-post">POST</div>
+        <div class="api-title">Summarize</div>
+        <div class="api-route">/api/summarize</div>
+        <div class="api-desc">Condense notes/text using GPT-4o-mini</div>
+      </div>
+      <div class="api-node">
+        <div class="method m-get">GET</div>
+        <div class="api-title">Health Check</div>
+        <div class="api-route">/api/health</div>
+        <div class="api-desc">API status + model availability ping</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Info bar ── -->
+  <div class="info-bar">
+    <div class="info-card">
+      <div class="ic-label">🛠 Tech Stack</div>
+      <div class="ic-items">
+        <div class="ic-item"><div class="dot2"></div>Next.js 14 (App Router)</div>
+        <div class="ic-item"><div class="dot2"></div>Tailwind CSS + CSS Vars</div>
+        <div class="ic-item"><div class="dot2"></div>Framer Motion</div>
+        <div class="ic-item"><div class="dot2"></div>OpenAI GPT-4o + Streaming</div>
+        <div class="ic-item"><div class="dot2"></div>Zustand (state)</div>
+        <div class="ic-item"><div class="dot2"></div>shadcn/ui (components)</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">🚀 Deployment</div>
+      <div class="ic-items">
+        <div class="ic-item"><div class="dot2"></div>Vercel (zero-config)</div>
+        <div class="ic-item"><div class="dot2"></div>Edge-safe API routes</div>
+        <div class="ic-item"><div class="dot2"></div>ENV: OPENAI_API_KEY</div>
+        <div class="ic-item"><div class="dot2"></div>No custom server needed</div>
+        <div class="ic-item"><div class="dot2"></div>Auto CI/CD via GitHub</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">🎨 Design System</div>
+      <div class="ic-items">
+        <div class="ic-item"><div class="dot2"></div>Glassmorphism cards</div>
+        <div class="ic-item"><div class="dot2"></div>Claymorphism buttons</div>
+        <div class="ic-item"><div class="dot2"></div>Black / Purple / Grey</div>
+        <div class="ic-item"><div class="dot2"></div>Syne + DM Sans fonts</div>
+        <div class="ic-item"><div class="dot2"></div>JetBrains Mono (code)</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">📐 Page Count</div>
+      <div class="ic-items">
+        <div class="ic-item"><div class="dot2"></div>5 main sections</div>
+        <div class="ic-item"><div class="dot2"></div>26 routes / sub-pages</div>
+        <div class="ic-item"><div class="dot2"></div>6 API endpoints</div>
+        <div class="ic-item"><div class="dot2"></div>5 modal overlays</div>
+        <div class="ic-item"><div class="dot2"></div>2 static sections</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /canvas -->
+
+<footer>
+  Studylo Sitemap v1.0 &nbsp;·&nbsp; Built for <span>students & vibe coders</span> &nbsp;·&nbsp; June 2026
+</footer>
+
+</body>
+</html>
