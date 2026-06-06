@@ -1,7 +1,15 @@
 import OpenAI from "openai";
 
-const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY;
-const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+// Prefer the user's direct OPENAI_API_KEY. Only fall back to the Replit AI
+// integration key when it comes paired with its own baseURL (e.g. OpenRouter).
+const directKey = process.env.OPENAI_API_KEY;
+const integrationKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+const integrationBaseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+
+const hasValidIntegration = integrationKey && integrationBaseURL;
+
+const apiKey = directKey ?? (hasValidIntegration ? integrationKey : undefined);
+const baseURL = directKey ? undefined : (hasValidIntegration ? integrationBaseURL : undefined);
 
 if (!apiKey) {
   throw new Error(
