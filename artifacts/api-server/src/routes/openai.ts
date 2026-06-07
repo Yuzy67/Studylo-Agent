@@ -14,12 +14,35 @@ import { eq, desc } from "drizzle-orm";
 
 const router = Router();
 
+// Pick model per mode — research uses Perplexity Sonar (live web search)
+const MODE_MODELS: Record<string, string> = {
+  research: "perplexity/sonar",
+  "vibe-coder": "openai/gpt-4o-mini",
+  "dev-tools": "openai/gpt-4o-mini",
+  notes: "openai/gpt-4o-mini",
+  study: "openai/gpt-4o-mini",
+};
+
+function getModel(mode: string): string {
+  return MODE_MODELS[mode] ?? "openai/gpt-4o-mini";
+}
+
+function today(): string {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+  });
+}
+
 const SYSTEM_PROMPTS: Record<string, string> = {
-  study: `You are Studylo's Academic Tutor — a patient, brilliant teacher for high school and university students. Break down complex topics step by step with clear language and real-world analogies. Format math using LaTeX ($...$). Be thorough, structured, and encouraging.`,
-  research: `You are Studylo's Research Analyst — a rigorous researcher. Provide cited reasoning, balanced perspectives, clear sections, and suggest follow-up questions. Be thorough and academically rigorous.`,
-  "dev-tools": `You are Studylo's Dev Co-Pilot — a senior full-stack engineer. Generate PRDs, TRDs, sitemaps, and production-ready code. Default stack: React + Vite, Tailwind, shadcn/ui. Output in clean Markdown with code blocks.`,
-  "vibe-coder": `You are Studylo's Vibe Coder — a startup co-founder who helps indie hackers ship fast. Generate AI prompts for Cursor, v0, Lovable, and Bolt. Create PRDs, TRDs, and starter code. Be opinionated and practical.`,
-  notes: `You are Studylo's Note Specialist. Summarize notes, extract key terms, identify core concepts, and generate study-ready content. Be concise and educational.`,
+  study: `You are Studylo's Academic Tutor — a patient, brilliant teacher for high school and university students. Today is ${today()}. Break down complex topics step by step with clear language, real-world analogies, and examples. Format math using LaTeX ($...$). Be thorough, structured, and encouraging. Always check understanding at the end.`,
+
+  research: `You are Studylo's Research Analyst with real-time internet access. Today is ${today()}. When a student asks about current events, news, or recent developments, search the web and provide up-to-date, accurate information with sources. For all topics: provide balanced perspectives, cite your sources, structure answers with clear sections (## headings), and suggest follow-up questions. Always mention if information is from the web or from your training data. Be rigorous and academically thorough.`,
+
+  "dev-tools": `You are Studylo's Dev Co-Pilot — a senior full-stack engineer. Today is ${today()}. Generate PRDs, TRDs, sitemaps, and production-ready code. Default stack: React + Vite, Tailwind, shadcn/ui. Output in clean Markdown with code blocks. Stay current with latest framework versions and best practices.`,
+
+  "vibe-coder": `You are Studylo's Vibe Coder — a startup co-founder who helps indie hackers ship fast. Today is ${today()}. Generate AI prompts for Cursor, v0, Lovable, and Bolt. Create PRDs, TRDs, and starter code. Be opinionated and practical. Reference the latest AI coding tools available.`,
+
+  notes: `You are Studylo's Note Specialist. Today is ${today()}. Summarize notes, extract key terms, identify core concepts, and generate study-ready content. Be concise and educational.`,
 };
 
 function normalizeMode(mode: string | undefined | null): string {
@@ -76,40 +99,16 @@ router.post("/openai/conversations", async (req, res) => {
 
 // GET /api/openai/conversations/:id
 router.get("/openai/conversations/:id", async (req, res) => {
-  const params = GetOpenaiConversationParams.safeParse({
-    id: Number(req.params.id),
-  });
-  if (!params.success) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+  const params = GetOpenaiConversationParams.safeParse({ id: Number(req.params.id) });
+  if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
   try {
-    const [conv] = await db
-      .select()
-      .from(conversations)
-      .where(eq(conversations.id, params.data.id));
-    if (!conv) {
-      res.status(404).json({ error: "Conversation not found" });
-      return;
-    }
-    const msgs = await db
-      .select()
-      .from(messages)
-      .where(eq(messages.conversationId, conv.id))
-      .orderBy(messages.createdAt);
+    const [conv] = await db.select().from(conversations).where(eq(conversations.id, params.data.id));
+    if (!conv) { res.status(404).json({ error: "Conversation not found" }); return; }
+    const msgs = await db.select().from(messages).where(eq(messages.conversationId, conv.id)).orderBy(messages.createdAt);
     res.json({
-      id: conv.id,
-      title: conv.title,
-      mode: conv.mode,
-      createdAt: conv.createdAt.toISOString(),
-      updatedAt: conv.updatedAt.toISOString(),
-      messages: msgs.map((m) => ({
-        id: m.id,
-        conversationId: m.conversationId,
-        role: m.role,
-        content: m.content,
-        createdAt: m.createdAt.toISOString(),
-      })),
+      id: conv.id, title: conv.title, mode: conv.mode,
+      createdAt: conv.createdAt.toISOString(), updatedAt: conv.updatedAt.toISOString(),
+      messages: msgs.map((m) => ({ id: m.id, conversationId: m.conversationId, role: m.role, content: m.content, createdAt: m.createdAt.toISOString() })),
     });
   } catch (err) {
     req.log.error({ err }, "Failed to get conversation");
@@ -119,22 +118,11 @@ router.get("/openai/conversations/:id", async (req, res) => {
 
 // DELETE /api/openai/conversations/:id
 router.delete("/openai/conversations/:id", async (req, res) => {
-  const params = DeleteOpenaiConversationParams.safeParse({
-    id: Number(req.params.id),
-  });
-  if (!params.success) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+  const params = DeleteOpenaiConversationParams.safeParse({ id: Number(req.params.id) });
+  if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
   try {
-    const deleted = await db
-      .delete(conversations)
-      .where(eq(conversations.id, params.data.id))
-      .returning();
-    if (!deleted.length) {
-      res.status(404).json({ error: "Conversation not found" });
-      return;
-    }
+    const deleted = await db.delete(conversations).where(eq(conversations.id, params.data.id)).returning();
+    if (!deleted.length) { res.status(404).json({ error: "Conversation not found" }); return; }
     res.status(204).end();
   } catch (err) {
     req.log.error({ err }, "Failed to delete conversation");
@@ -144,28 +132,11 @@ router.delete("/openai/conversations/:id", async (req, res) => {
 
 // GET /api/openai/conversations/:id/messages
 router.get("/openai/conversations/:id/messages", async (req, res) => {
-  const params = ListOpenaiMessagesParams.safeParse({
-    id: Number(req.params.id),
-  });
-  if (!params.success) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+  const params = ListOpenaiMessagesParams.safeParse({ id: Number(req.params.id) });
+  if (!params.success) { res.status(400).json({ error: "Invalid id" }); return; }
   try {
-    const msgs = await db
-      .select()
-      .from(messages)
-      .where(eq(messages.conversationId, params.data.id))
-      .orderBy(messages.createdAt);
-    res.json(
-      msgs.map((m) => ({
-        id: m.id,
-        conversationId: m.conversationId,
-        role: m.role,
-        content: m.content,
-        createdAt: m.createdAt.toISOString(),
-      }))
-    );
+    const msgs = await db.select().from(messages).where(eq(messages.conversationId, params.data.id)).orderBy(messages.createdAt);
+    res.json(msgs.map((m) => ({ id: m.id, conversationId: m.conversationId, role: m.role, content: m.content, createdAt: m.createdAt.toISOString() })));
   } catch (err) {
     req.log.error({ err }, "Failed to list messages");
     res.status(500).json({ error: "Failed to list messages" });
@@ -174,45 +145,23 @@ router.get("/openai/conversations/:id/messages", async (req, res) => {
 
 // POST /api/openai/conversations/:id/messages (SSE streaming)
 router.post("/openai/conversations/:id/messages", async (req, res) => {
-  const params = SendOpenaiMessageParams.safeParse({
-    id: Number(req.params.id),
-  });
+  const params = SendOpenaiMessageParams.safeParse({ id: Number(req.params.id) });
   const body = SendOpenaiMessageBody.safeParse(req.body);
-
-  if (!params.success || !body.success) {
-    res.status(400).json({ error: "Invalid request" });
-    return;
-  }
+  if (!params.success || !body.success) { res.status(400).json({ error: "Invalid request" }); return; }
 
   const conversationId = params.data.id;
   const userContent = body.data.content;
   const mode = normalizeMode(body.data.mode);
+  const model = getModel(mode);
 
   try {
-    const [conv] = await db
-      .select()
-      .from(conversations)
-      .where(eq(conversations.id, conversationId));
-    if (!conv) {
-      res.status(404).json({ error: "Conversation not found" });
-      return;
-    }
+    const [conv] = await db.select().from(conversations).where(eq(conversations.id, conversationId));
+    if (!conv) { res.status(404).json({ error: "Conversation not found" }); return; }
 
-    // Save user message
     await db.insert(messages).values({ conversationId, role: "user", content: userContent });
+    await db.update(conversations).set({ updatedAt: new Date() }).where(eq(conversations.id, conversationId));
 
-    // Update conversation timestamp
-    await db
-      .update(conversations)
-      .set({ updatedAt: new Date() })
-      .where(eq(conversations.id, conversationId));
-
-    // Build full history for context
-    const history = await db
-      .select()
-      .from(messages)
-      .where(eq(messages.conversationId, conversationId))
-      .orderBy(messages.createdAt);
+    const history = await db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
 
     const systemPrompt = SYSTEM_PROMPTS[mode] ?? SYSTEM_PROMPTS.study;
     const chatMessages: { role: "system" | "user" | "assistant"; content: string }[] = [
@@ -220,14 +169,16 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
       ...history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
 
-    // Set up SSE
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
     res.flushHeaders();
 
+    // Signal which model is being used so the frontend can show a badge
+    res.write(`data: ${JSON.stringify({ model, mode })}\n\n`);
+
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model,
       messages: chatMessages,
       stream: true,
       max_tokens: 4096,
@@ -242,7 +193,6 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
       }
     }
 
-    // Save assistant message
     await db.insert(messages).values({ conversationId, role: "assistant", content: fullResponse });
 
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
@@ -252,7 +202,7 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
     if (!res.headersSent) {
       res.status(500).json({ error: "Failed to generate response" });
     } else {
-      res.write(`data: ${JSON.stringify({ error: "Generation failed. Check your OPENAI_API_KEY." })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: "Generation failed. Check your API key." })}\n\n`);
       res.end();
     }
   }
