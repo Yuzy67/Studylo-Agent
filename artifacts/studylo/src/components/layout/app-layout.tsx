@@ -1,14 +1,32 @@
-import React from 'react';
-import { Sidebar } from './sidebar';
+import React, { useState } from "react";
+import { Sidebar } from "./sidebar";
+import { MobileHeader, MobileDrawer } from "./mobile-header";
+import { MobileNav } from "./mobile-nav";
+import { SidebarContent } from "./sidebar-content";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <div className="flex h-screen bg-[#0A0A0F] text-[#D1D5DB] overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#080810] text-white overflow-hidden font-sans">
+      {/* Desktop sidebar */}
       <Sidebar />
-      <main className="flex-1 flex flex-col min-w-0 relative">
-        <div className="absolute inset-0 bg-purple-900/5 pointer-events-none" />
+
+      {/* Mobile top header */}
+      <MobileHeader onMenuOpen={() => setMobileOpen(true)} />
+
+      {/* Mobile drawer */}
+      <MobileDrawer open={mobileOpen} onClose={() => setMobileOpen(false)}>
+        <SidebarContent onNavigate={() => setMobileOpen(false)} />
+      </MobileDrawer>
+
+      {/* Main content — push down on mobile for header, up for bottom nav */}
+      <main className="flex-1 flex flex-col min-w-0 relative pt-14 pb-[64px] md:pt-0 md:pb-0 overflow-hidden">
         {children}
       </main>
+
+      {/* Mobile bottom tab bar */}
+      <MobileNav />
     </div>
   );
 }
