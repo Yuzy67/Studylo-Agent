@@ -10,6 +10,7 @@ import Chat from "@/pages/chat";
 import DevTools from "@/pages/dev-tools";
 import Study from "@/pages/study";
 import Notes from "@/pages/notes";
+import Settings from "@/pages/settings";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/dev-tools" component={DevTools} />
       <Route path="/study" component={Study} />
       <Route path="/notes" component={Notes} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
