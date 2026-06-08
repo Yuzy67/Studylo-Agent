@@ -21,7 +21,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </MobileDrawer>
 
       {/* Main content — push down on mobile for header, up for bottom nav */}
-      <main className="flex-1 flex flex-col min-w-0 relative pt-14 pb-[64px] md:pt-0 md:pb-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 relative pt-14 pb-[64px] md:pt-0 md:pb-0 overflow-x-hidden">
         {children}
       </main>
 

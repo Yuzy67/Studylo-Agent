@@ -116,8 +116,8 @@ export default function Study() {
     <AppLayout>
       <div className="flex-1 flex flex-col h-full relative">
 
-        {/* ── Sticky header ── */}
-        <div className="flex-shrink-0 border-b border-white/[0.05] bg-[#080810]/90 backdrop-blur-xl sticky top-0 z-10 px-3 py-3 md:px-5 md:py-4">
+        {/* ── Header ── */}
+        <div className="flex-shrink-0 border-b border-white/[0.05] bg-[#080810] px-3 py-3 md:px-5 md:py-4">
           <div className="max-w-3xl mx-auto space-y-3">
 
             {/* Mode toggle row */}

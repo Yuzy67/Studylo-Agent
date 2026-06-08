@@ -85,25 +85,24 @@ export default function Home() {
         {/* Very subtle ambient — much smaller, lower opacity */}
         <div className="fixed top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[320px] bg-violet-700/8 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="max-w-3xl mx-auto px-6 pt-20 pb-24 relative z-10 flex flex-col items-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-12 md:pt-20 pb-20 md:pb-24 relative z-10 flex flex-col items-center">
 
           {/* Hero */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="text-center mb-10 space-y-5"
+            className="text-center mb-6 md:mb-10 space-y-3 sm:space-y-5"
           >
             {/* Logomark inline above title */}
             <div className="flex justify-center mb-2">
               <StudyloMark size={44} />
             </div>
 
-            <h1 className="text-4xl md:text-[52px] font-bold text-white tracking-tight leading-[1.1]" style={{ fontFamily: "var(--app-font-serif)" }}>
-              Your AI study &<br />
-              <span className="text-gradient">dev companion.</span>
+            <h1 className="text-[26px] sm:text-4xl md:text-[52px] font-bold text-white tracking-tight leading-[1.15]" style={{ fontFamily: "var(--app-font-serif)" }}>
+              Your AI study &amp; <span className="text-gradient">dev companion.</span>
             </h1>
-            <p className="text-base text-white/40 max-w-md mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-white/40 max-w-sm sm:max-w-md mx-auto leading-relaxed">
               Ask anything — from calculus proofs to current world events to shipping your next side project.
             </p>
           </motion.div>
